@@ -13,6 +13,9 @@
 | M5 运行对账 | 对照输入、采信和隔离行 | `POST /api/stages/balance` | `app/modules/reconcile.py` | `tests/test_reconcile.py` |
 | M6 批次复核 | 执行批次并签发或暂缓 | `POST /api/runs、PATCH /api/runs/<id>` | `app/review/service.py` | `tests/test_review.py` |
 | M7 证据交付 | 下载复核清单 | `GET /api/runs/<id>/evidence` | `app/evidence/render.py` | `tests/test_evidence.py` |
+| M8 费率表 | 解析、校验、指纹费率版本 | 内置档案/`rate_file` | `app/rates/schedule.py` | `tests/test_rate_schedule.py` |
+| M9 区间拆分 | 暂停去重、免计跨段一次、分段记账 | `POST /api/corrections/preview` | `app/rates/billing.py`、`app/rates/correction.py` | `tests/test_billing_split.py` |
+| M10 更正批次 | 不可变重跑、差额链路、挡签 | `POST /api/runs?kind=correction` | `app/modules/correction_pipeline.py`、`app/review/service.py` | `tests/test_correction.py`、`tests/test_correction_concurrency.py`、`tests/test_correction_http.py` |
 
 ## 输入陷阱
 
@@ -35,3 +38,15 @@
 停时按左闭右开分钟段记录。先剪裁并合并暂停时段，再扣除免计分钟。前 60 分钟每分 1 分钱，后 60 分钟每分 3 分钱，余下每分 5 分钱。
 
 逐组预期结论见 `tests/test_policy.py`，计算过程证据见 `tests/test_calculate.py`。
+
+## 费率更正反例
+
+- 暂停段交叠只扣一次（并集剪裁），免计分钟跨费率区间只用一次、不随费段重置。
+- 费率区间缺失（`RATE_INTERVAL_MISSING`）或分段相加与票据不符（`INVOICE_MISMATCH`）
+  必须挡签并在 `bill.blocks` 与 `balance.block_reasons` 并列记录。
+- 运行编号绑定数据源与费率表指纹：同源重跑幂等不覆盖，不同费率表产生独立
+  不可变批次；`lineage` 保留同源源批次的原费率金额与可追溯差额。
+- 费率表结构错误（重叠、乱序、缺开放档、非法费率）解析即拒；覆盖缺口允许
+  登记但在计费阶段挡签。
+
+规则与接口详见 [费率更正](CORRECTION.md)。

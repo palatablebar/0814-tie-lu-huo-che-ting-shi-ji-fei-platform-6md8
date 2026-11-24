@@ -1,0 +1,6 @@
+record,case,kind,start_min,end_min,free_min,amount_cents,note
+000501,0005,stay,0,160,10,0,月初更正停时
+000502,0005,pause,5,35,0,0,暂停底稿
+000503,0005,invoice,0,0,0,320,按更正费率开具
+000601,0006,stay,0,90,0,0,短停时
+000602,0006,invoice,0,0,0,240,按更正费率开具

@@ -2,7 +2,7 @@
 
 铁路货运结算员可在工作台上传来源 CSV，对照规则判断差异，签发合格批次或记录暂缓意见。
 
-归并约定暂停段，从停时扣除后按递进档位计费。
+归并约定暂停段，从停时扣除后按递进档位计费。费率更正回溯月初，按实际计费区间拆分可签账单，已签批次原样留作追责，详见[费率更正](docs/CORRECTION.md)。
 
 ## 启动
 
@@ -18,4 +18,4 @@ docker compose up --build -d --wait
 docker compose exec -T app pytest -q
 ```
 
-[输入字段](docs/DATA-DICTIONARY.md) · [阶段接口](docs/HTTP.md) · [操作步骤](docs/OPERATIONS.md) · [规则与测试](docs/DEPTH.md)
+[输入字段](docs/DATA-DICTIONARY.md) · [阶段接口](docs/HTTP.md) · [操作步骤](docs/OPERATIONS.md) · [规则与测试](docs/DEPTH.md) · [费率更正](docs/CORRECTION.md)

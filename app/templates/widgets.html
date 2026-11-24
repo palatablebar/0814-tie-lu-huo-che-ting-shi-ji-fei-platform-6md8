@@ -8,9 +8,28 @@
 {% endmacro %}
 {% macro intake() %}
 <form class="source" id="source" aria-label="批次输入">
-  <label>输入样例 <select id="profile"><option value="dirty">带异常样例</option><option value="clean">可签发样例</option></select></label>
+  <label>输入样例 <select id="profile"><option value="dirty">带异常样例</option><option value="clean">可签发样例</option><option value="corrected_ready">更正可签样例</option></select></label>
   <label for="file" class="file">上传 CSV</label><input id="file" type="file" accept=".csv,text/csv"><span id="file-name" aria-live="polite"></span>
-  <button type="submit" class="action">执行批次</button>
+  <fieldset class="mode" id="mode-box">
+    <legend>计费模式</legend>
+    <label><input type="radio" name="mode" value="legacy" checked> 原费率批次</label>
+    <label><input type="radio" name="mode" value="correction"> 费率更正</label>
+  </fieldset>
+  <fieldset class="rate" id="rate-box" hidden>
+    <legend>费率表（回溯到月初）</legend>
+    <label>费率档案
+      <select id="rate-profile">
+        <option value="legacy">历史费率 1.0.0</option>
+        <option value="corrected" selected>更正费率 2.0.0</option>
+        <option value="gapped">含缺口费率（挡签演示）</option>
+      </select>
+    </label>
+    <label for="rate-file" class="file">上传费率 JSON</label>
+    <input id="rate-file" type="file" accept=".json,application/json">
+    <span id="rate-file-name" aria-live="polite"></span>
+  </fieldset>
+  <button type="button" class="action" id="preview-correction" hidden>更正预览</button>
+  <button type="submit" class="action" id="execute-btn">执行批次</button>
 </form>
 {% endmacro %}
 {% macro metrics() %}

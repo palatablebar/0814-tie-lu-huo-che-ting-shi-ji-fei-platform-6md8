@@ -1,0 +1,21 @@
+{
+  "code": "STAY_RATE",
+  "version": "2.1.0-gap",
+  "periods": [
+    {
+      "start_min": 0,
+      "end_min": 100,
+      "tiers": [
+        {"width_min": 60, "rate_cents": 2},
+        {"width_min": null, "rate_cents": 4}
+      ]
+    },
+    {
+      "start_min": 130,
+      "end_min": null,
+      "tiers": [
+        {"width_min": null, "rate_cents": 6}
+      ]
+    }
+  ]
+}

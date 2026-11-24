@@ -1,0 +1,22 @@
+{
+  "code": "STAY_RATE",
+  "version": "2.0.0",
+  "periods": [
+    {
+      "start_min": 0,
+      "end_min": 120,
+      "tiers": [
+        {"width_min": 60, "rate_cents": 2},
+        {"width_min": null, "rate_cents": 4}
+      ]
+    },
+    {
+      "start_min": 120,
+      "end_min": null,
+      "tiers": [
+        {"width_min": 60, "rate_cents": 3},
+        {"width_min": null, "rate_cents": 6}
+      ]
+    }
+  ]
+}

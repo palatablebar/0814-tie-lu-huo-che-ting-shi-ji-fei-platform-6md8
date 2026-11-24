@@ -2,9 +2,10 @@ from flask import Blueprint, Response, current_app, jsonify, request
 
 from app.business import DomainIssue
 from app.evidence.render import artifact
-from app.inputs import read_input
+from app.inputs import read_input, read_schedule
+from app.modules.correction_pipeline import run_correction
 from app.modules.pipeline import run
-from app.review.service import execute, review
+from app.review.service import execute, execute_correction, review
 
 api = Blueprint("api", __name__, url_prefix="/api")
 STAGES = {"intake": 1, "prepare": 2, "calculate": 3, "policy": 4, "balance": 5}
@@ -17,11 +18,20 @@ def preview(stage):
     return jsonify(run(read_input(), STAGES[stage]))
 
 
+@api.post("/corrections/preview")
+def correction_preview():
+    """费率更正工作台预览：按费率表拆分可签账单，不入库。"""
+    schedule = read_schedule()
+    return jsonify(run_correction(read_input(), schedule))
+
+
 @api.route("/runs", methods=["GET", "POST"])
 def runs():
     store = current_app.extensions["runs"]
     if request.method == "GET":
         return jsonify(items=store.list())
+    if request.form.get("kind") == "correction":
+        return jsonify(execute_correction(store, read_input(), read_schedule()))
     return jsonify(execute(store, read_input()))
 
 

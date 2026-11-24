@@ -32,6 +32,12 @@ body.dispatch {margin:0;background:var(--bg);color:var(--ink);font:var(--size)/1
 .dispatch th,.dispatch td {text-align:left;height:var(--row);padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
 .dispatch th {position:sticky;top:0;background:var(--surface);color:var(--sub)} .dispatch td:nth-child(n+2):nth-child(-n+4) {text-align:right}
 .dispatch .badge {color:var(--alert);font-size:.83em;padding:2px 4px;white-space:nowrap} .dispatch .badge:is([data-result="READY"],[data-result="APPROVED"]) {color:var(--accent)}
+.dispatch .badge[data-result="BLOCKED"] {color:#ff8f7d;font-weight:700}
+.dispatch fieldset.mode,.dispatch fieldset.rate {border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;min-width:0}
+.dispatch fieldset legend {color:var(--sub);padding:0 4px;font-size:.85em}
+.dispatch fieldset.mode label,.dispatch fieldset.rate label {display:flex;align-items:center;gap:5px}
+.dispatch fieldset.mode input {position:static;width:auto;height:auto;opacity:1}
+.dispatch #rate-file-name {overflow-wrap:anywhere;max-width:100%}
 .dispatch #detail {margin:0;max-height:230px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font: .91em/1.5 var(--font-num)}
 .dispatch #history {list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:var(--gap);margin:0} .dispatch #history li {display:flex;align-items:center}
 .dispatch #review {margin-top:14px;max-width:580px} .dispatch textarea {display:block;width:100%;min-height:54px;cursor:text}

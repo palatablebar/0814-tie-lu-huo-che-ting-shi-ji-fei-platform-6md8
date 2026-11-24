@@ -1,10 +1,15 @@
 import {element, pretty} from './client.js';
 
-const labels = {READY:'通过', MISMATCH:'差异待复核', PENDING:'待复核', APPROVED:'已签发', HELD:'已暂缓'};
+const labels = {READY:'通过', MISMATCH:'差异待复核', BLOCKED:'挡签', PENDING:'待复核', APPROVED:'已签发', HELD:'已暂缓'};
 const headers = ['业务分组', '输入行', '计算值', '参考值', '判定'];
+const billHeaders = ['业务分组', '输入行', '分段金额(分)', '票据金额(分)', '判定'];
 
 export function badge(status) {
   return element('span', labels[status] || status, {class:'badge', 'data-result':status, title: status});
+}
+
+function isCorrection(report) {
+  return Boolean(report.schedule);
 }
 
 export function snapshot(report, selected, stage) {
@@ -24,6 +29,17 @@ export function snapshot(report, selected, stage) {
       tr.append(...[item.line,item.record,item.case,item.reason].map(value=>element('td',value)));
     }
     if (!stats.isolation.length) body.insertRow().insertCell().textContent = '当前文件没有隔离行';
+  } else if (isCorrection(report)) {
+    head.append(...billHeaders.map(title => element('th', title, {scope:'col'})));
+    for (const row of report.cases || []) {
+      const tr = body.insertRow();
+      const button = element('button',row.case,{type:'button','data-case':row.case,'aria-pressed':String(row.case===selected)});
+      tr.insertCell().append(button);
+      tr.insertCell().textContent = row.records.length;
+      tr.insertCell().textContent = row.bill?.amount_cents ?? '—';
+      tr.insertCell().textContent = row.invoice_cents ?? '—';
+      tr.insertCell().append(badge(row.status));
+    }
   } else {
     head.append(...headers.map(title => element('th', title, {scope:'col'})));
     for (const row of report.cases || []) {
@@ -37,9 +53,36 @@ export function snapshot(report, selected, stage) {
   table.createTHead().append(head);
   const picked = report.cases?.find(row=>row.case===selected);
   document.querySelector('#detail-title').textContent = picked ? `分组 ${picked.case}` : '采信摘要';
-  const shown = picked ? picked.measure?.evidence ?? picked.prep?.details ?? {原因:picked.status} : stats.reasons;
+  const shown = picked
+    ? (picked.bill ? correctionDetail(picked) : (picked.measure?.evidence ?? picked.prep?.details ?? {原因:picked.status}))
+    : stats.reasons;
   document.querySelector('#detail').textContent = pretty(shown);
-  document.querySelector('#counts').textContent = report.balance ? `行数 ${report.balance.accounted}/${report.balance.input} · ${report.balance.ready} 组通过` : `采信 ${stats.accepted} 行 · 隔离 ${stats.rejected} 行`;
+  document.querySelector('#counts').textContent = report.balance
+    ? `行数 ${report.balance.accounted}/${report.balance.input} · ${report.balance.ready} 组通过${report.balance.blocked ? ` · ${report.balance.blocked} 组挡签` : ''}`
+    : `采信 ${stats.accepted} 行 · 隔离 ${stats.rejected} 行`;
+}
+
+function correctionDetail(caseRow) {
+  const bill = caseRow.bill;
+  return {
+    停时记录: caseRow.stay_record,
+    扣减: {
+      停时分钟: bill.duration_min,
+      暂停分钟: bill.paused_min,
+      免计分钟: bill.free_min,
+      免计已用: bill.free_used_min,
+      计费分钟: bill.billable_min,
+    },
+    分段账单: bill.segments.map(segment => ({
+      键: segment.key,
+      区间: [segment.start_min, segment.end_min],
+      分钟: segment.minutes,
+      费率: segment.rate_cents,
+      金额: segment.amount_cents,
+    })),
+    金额合计: bill.amount_cents,
+    阻断记录: bill.blocks,
+  };
 }
 
 export function history(items, active) {
